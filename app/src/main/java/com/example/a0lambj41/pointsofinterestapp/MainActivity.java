@@ -58,10 +58,7 @@ public class MainActivity extends Activity
 
 
     public boolean onOptionsItemSelected(MenuItem item) {
-        String dir_path = Environment.getExternalStorageDirectory().getAbsolutePath();
-        EditText name = (EditText) findViewById(R.id.nameEditText);
-        EditText type = (EditText) findViewById(R.id.typeEditText);
-        EditText description = (EditText) findViewById(R.id.descriptionEditText);
+
 
         if(item.getItemId() == R.id.addpoi)
         {
@@ -125,6 +122,7 @@ public class MainActivity extends Activity
 
             items.addItem(addpoi);
             mv.getOverlays().add(items);
+            
             mv.refreshDrawableState();
 
             Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
