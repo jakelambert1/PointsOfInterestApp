@@ -3,10 +3,12 @@ package com.example.a0lambj41.pointsofinterestapp;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import org.osmdroid.config.Configuration;
@@ -16,6 +18,11 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.ItemizedIconOverlay;
 import org.osmdroid.views.overlay.OverlayItem;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class MainActivity extends Activity
@@ -49,14 +56,53 @@ public class MainActivity extends Activity
         return true;
     }
 
-    public boolean onOptionsItemSelected(MenuItem item)
-    {
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        String dir_path = Environment.getExternalStorageDirectory().getAbsolutePath();
+        EditText name = (EditText) findViewById(R.id.nameEditText);
+        EditText type = (EditText) findViewById(R.id.typeEditText);
+        EditText description = (EditText) findViewById(R.id.descriptionEditText);
+
         if(item.getItemId() == R.id.addpoi)
         {
             // react to the menu item being selected...
             // Launch second activity
             Intent intent = new Intent(this,AddPOIActivity.class);
             startActivityForResult(intent, 0);
+            return true;
+        }
+        else if (item.getItemId() == R.id.save)
+        {
+            try {
+                FileWriter fw = new FileWriter(dir_path + "/notes.txt");
+                PrintWriter pw = new PrintWriter(fw);
+                pw.println(name.getText());
+                pw.println(type.getText());
+                pw.println(description.getText());
+                pw.flush();
+                pw.close();
+            } catch (IOException e){
+                System.out.println("ERROR! " + e.getMessage());
+            }
+            Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
+            // react to the menu item being selected...
+            return true;
+        }
+        else if (item.getItemId() == R.id.load) {
+
+            try {
+                FileReader fr = new FileReader(dir_path + "/notes.txt");
+                BufferedReader br = new BufferedReader(fr);
+                name.setText(br.readLine());
+                type.setText(br.readLine());
+                description.setText(br.readLine());
+                br.close();
+            }
+            catch(IOException e){
+                System.out.println("ERROR! " + e.getMessage());
+            }
+            Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
+            // react to the menu item being selected...
             return true;
         }
         return false;
