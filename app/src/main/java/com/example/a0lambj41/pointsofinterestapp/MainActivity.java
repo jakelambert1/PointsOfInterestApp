@@ -135,15 +135,24 @@ public class MainActivity extends Activity
                 BufferedReader reader = new BufferedReader(fr);
                 String line = "";
                 String loadedtext = "";
-                while ((line = reader.readLine()) != null) {
+
+                while ((line = reader.readLine()) != null)
+                {
                     String[] components = line.split(",");
-                    if (components.length == 5) {
-                        POIs currentPOIs = new POIs(components[0], components[1], components[2], components[3], components[4]);
-                        listPOIs.add(currentPOIs);
+
+                    if (components.length == 4) {
+                        String name = components[0];
+                        String type = components[1];
+                        String description = components[2];
+                        double longitude = Double.parseDouble(components[3]);
+                        double latitude = Double.parseDouble(components[4]);
+                        OverlayItem Item = new OverlayItem(components[0], components[1], components[2], new GeoPoint(Double.parseDouble(components[3]), Double.parseDouble(components[4])));
+                        items.addItem(Item);
                     }
                 }
                 reader.close();
-            } catch (IOException e) {
+            }
+            catch (IOException e) {
                 new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
             }
             return true;
