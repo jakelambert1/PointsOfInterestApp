@@ -1,6 +1,7 @@
 package com.example.a0lambj41.pointsofinterestapp;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,12 +25,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends Activity
 {
 
     MapView mv;
     ItemizedIconOverlay<OverlayItem> items;
+    private List<POIs> listPOIs;
 
     /** Called when the activity is first created. */
     @Override
@@ -47,7 +50,44 @@ public class MainActivity extends Activity
         mv.getController().setCenter(new GeoPoint(50.9,-1.4));
 
         items = new ItemizedIconOverlay<OverlayItem>(this, new ArrayList<OverlayItem>(), null);
+
+        this.listPOIs = new ArrayList<>();
     }
+
+    private class POIs {
+        private String name, type, description;
+        private double longitude, latitude;
+
+        public POIs(String nameArray, String typeArray, String descriptionArray, double longArray, double latArray) {
+            this.name = nameArray;
+            this.type = typeArray;
+            this.description = descriptionArray;
+            this.longitude = longArray;
+            this.latitude = latArray;
+        }
+
+        public String getName() {
+            return this.name;
+        }
+
+        public String getType() {
+            return this.type;
+        }
+
+        public String getDescription() {
+            return this.description;
+        }
+
+        public Double getLongitude() {
+            return this.longitude;
+        }
+
+        public Double getLatitude() {
+            return this.latitude;
+        }
+    }
+
+
 
     public boolean onCreateOptionsMenu(Menu menu)
     {
@@ -57,49 +97,36 @@ public class MainActivity extends Activity
     }
 
 
+
+
+
+
+
     public boolean onOptionsItemSelected(MenuItem item) {
 
 
-        if(item.getItemId() == R.id.addpoi)
-        {
+        if(item.getItemId() == R.id.addpoi) {
             // react to the menu item being selected...
             // Launch second activity
-            Intent intent = new Intent(this,AddPOIActivity.class);
+            Intent intent = new Intent(this, AddPOIActivity.class);
             startActivityForResult(intent, 0);
             return true;
         }
-        else if (item.getItemId() == R.id.save)
-        {
-            try {
-                FileWriter fw = new FileWriter(dir_path + "/notes.txt");
-                PrintWriter pw = new PrintWriter(fw);
-                pw.println(name.getText());
-                pw.println(type.getText());
-                pw.println(description.getText());
-                pw.flush();
+        else if(item.getItemId() == R.id.save) {
+            String savedDetails = "";
+            for (POIs p : listPOIs) {
+                savedDetails += p.getName() + "," + p.getType() + "," + p.getDescription() + "," + p.getLatitude() + "," + p.getLongitude();
+            }
+            try
+            {
+                PrintWriter pw = new PrintWriter(new FileWriter(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv"));
+                pw.println(savedDetails);
                 pw.close();
-            } catch (IOException e){
-                System.out.println("ERROR! " + e.getMessage());
             }
-            Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
-            // react to the menu item being selected...
-            return true;
-        }
-        else if (item.getItemId() == R.id.load) {
-
-            try {
-                FileReader fr = new FileReader(dir_path + "/notes.txt");
-                BufferedReader br = new BufferedReader(fr);
-                name.setText(br.readLine());
-                type.setText(br.readLine());
-                description.setText(br.readLine());
-                br.close();
+            catch(IOException e)
+            {
+                new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
             }
-            catch(IOException e){
-                System.out.println("ERROR! " + e.getMessage());
-            }
-            Toast.makeText(MainActivity.this, "Marker Created!", Toast.LENGTH_SHORT).show();
-            // react to the menu item being selected...
             return true;
         }
         return false;
@@ -120,7 +147,10 @@ public class MainActivity extends Activity
 
             OverlayItem addpoi = new OverlayItem(poiname, poitype + poidesc, new GeoPoint(latitude, longitude));
 
+            this.listPOIs.add(new POIs(poiname, poitype, poidesc, latitude, longitude));
+
             items.addItem(addpoi);
+
             mv.getOverlays().add(items);
             
             mv.refreshDrawableState();
