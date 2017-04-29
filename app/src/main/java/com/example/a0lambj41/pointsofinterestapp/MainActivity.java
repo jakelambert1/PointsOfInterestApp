@@ -129,6 +129,25 @@ public class MainActivity extends Activity
             }
             return true;
         }
+        else if (item.getItemId() == R.id.load) {
+            try {
+                FileReader fr = new FileReader(Environment.getExternalStorageDirectory().getAbsolutePath() + "/markers.csv");
+                BufferedReader reader = new BufferedReader(fr);
+                String line = "";
+                String loadedtext = "";
+                while ((line = reader.readLine()) != null) {
+                    String[] components = line.split(",");
+                    if (components.length == 5) {
+                        POIs currentPOIs = new POIs(components[0], components[1], components[2], components[3], components[4]);
+                        listPOIs.add(currentPOIs);
+                    }
+                }
+                reader.close();
+            } catch (IOException e) {
+                new AlertDialog.Builder(this).setMessage("ERROR: " + e).setPositiveButton("OK", null).show();
+            }
+            return true;
+        }
         return false;
     }
 
